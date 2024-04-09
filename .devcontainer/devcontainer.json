@@ -1,0 +1,26 @@
+{
+	"name": "Hukt Workspace",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"context": ".",
+		"args": {
+			"USERNAME": "${localEnv:USER}"
+		}
+	},
+	"runArgs": ["--network=host"],
+	"forwardPorts": [8080],
+	"otherPortsAttributes": {
+		"onAutoForward": "ignore"
+	},
+	"mounts": [
+		"source=${env:HOME}${env:USERPROFILE}/.ssh,target=/home/vscode/.ssh,type=bind",
+		"source=${env:HOME}${env:USERPROFILE}/.gitconfig,target=/home/vscode/.gitconfig,type=bind",
+		"source=${env:HOME}${env:USERPROFILE}/.config/gh,target=/home/${localEnv:USER}/.config/gh,type=bind"
+	],
+	"containerEnv": {
+		"NODE_ENV": "development"
+	},
+	"features": {
+		"ghcr.io/devcontainers/features/github-cli:1": {}
+	}
+}
