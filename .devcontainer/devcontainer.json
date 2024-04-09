@@ -13,8 +13,8 @@
 		"onAutoForward": "ignore"
 	},
 	"mounts": [
-		"source=${env:HOME}${env:USERPROFILE}/.ssh,target=/home/vscode/.ssh,type=bind",
-		"source=${env:HOME}${env:USERPROFILE}/.gitconfig,target=/home/vscode/.gitconfig,type=bind",
+		"source=${env:HOME}${env:USERPROFILE}/.ssh,target=/home/${localEnv:USER}/.ssh,type=bind",
+		"source=${env:HOME}${env:USERPROFILE}/.gitconfig,target=/home/${localEnv:USER}/.gitconfig,type=bind",
 		"source=${env:HOME}${env:USERPROFILE}/.config/gh,target=/home/${localEnv:USER}/.config/gh,type=bind"
 	],
 	"containerEnv": {
