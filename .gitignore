@@ -1,2 +1,10 @@
-node_modules
 .env*
+.DS_Store
+.svelte-kit
+.turbo
+.build
+node_modules
+package
+!.env.example
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*

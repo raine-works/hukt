@@ -1,0 +1,17 @@
+{
+	"name": "@hukt/client",
+	"version": "0.0.0",
+	"private": true,
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:raine-works/hukt.git",
+		"directory": "apps/client"
+	},
+	"devDependencies": {
+		"bun-types": "^1.1.3",
+		"@hukt/tsconfig": "workspace:*"
+	},
+	"peerDependencies": {
+		"typescript": "^5.4.4"
+	}
+}

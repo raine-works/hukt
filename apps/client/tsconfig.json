@@ -1,0 +1,3 @@
+{
+	"extends": "@hukt/tsconfig/base.json"
+}
