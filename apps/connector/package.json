@@ -1,11 +1,11 @@
 {
-	"name": "@hukt/client",
+	"name": "@hukt/connector",
 	"version": "0.0.0",
 	"private": true,
 	"repository": {
 		"type": "git",
 		"url": "git@github.com:raine-works/hukt.git",
-		"directory": "apps/client"
+		"directory": "apps/connector"
 	},
 	"devDependencies": {
 		"bun-types": "^1.1.3",
