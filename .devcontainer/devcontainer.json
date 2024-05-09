@@ -8,7 +8,7 @@
 		}
 	},
 	"runArgs": ["--network=host"],
-	"forwardPorts": [3000],
+	"forwardPorts": [3000, 5656],
 	"mounts": [
 		"source=${env:HOME}${env:USERPROFILE}/.ssh,target=/home/${localEnv:USER}/.ssh,type=bind",
 		"source=${env:HOME}${env:USERPROFILE}/.gitconfig,target=/home/${localEnv:USER}/.gitconfig,type=bind",
@@ -23,7 +23,8 @@
 	},
 	"customizations": {
 		"vscode": {
-			"extensions": ["esbenp.prettier-vscode", "svelte.svelte-vscode"]
+			"extensions": ["esbenp.prettier-vscode", "ms-ossdata.vscode-postgresql"]
 		}
-	}
+	},
+	"postStartCommand": "bash .devcontainer/scripts/post-start.sh"
 }

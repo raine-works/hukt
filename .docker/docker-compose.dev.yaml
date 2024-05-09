@@ -1,24 +1,21 @@
 services:
-  db:
-    container_name: hukt-db
+  postgres:
+    container_name: development-database
     image: postgres:16.2-alpine3.19
     restart: unless-stopped
     env_file:
-      # POSTGRES_USER
-      # POSTGRES_PASSWORD
-      # POSTGRES_DB
       - .env
     ports:
-      - '5432:5432'
+      - 5432:5432
     volumes:
-      - db:/var/lib/postgresql/data
+      - dev_db:/var/lib/postgresql/data
     networks:
-      - postgres_net
-
+      - dev_network
+    
 volumes:
-  db:
+  dev_db:
     driver: local
 
 networks:
-  postgres_net:
+  dev_network: 
     driver: bridge

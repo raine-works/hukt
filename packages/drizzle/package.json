@@ -1,0 +1,26 @@
+{
+	"name": "@hukt/drizzle",
+	"version": "0.0.0",
+	"private": true,
+	"main": "./src/index.ts",
+	"types": "./src/index.ts",
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:raine-works/hukt.git",
+		"directory": "packages/drizzle"
+	},
+	"devDependencies": {
+		"@hukt/tsconfig": "workspace:*",
+		"@types/pg": "^8.11.6",
+		"bun-types": "^1.1.3",
+		"drizzle-kit": "^0.21.0",
+		"zod": "^3.23.8"
+	},
+	"peerDependencies": {
+		"typescript": "^5.4.4"
+	},
+	"dependencies": {
+		"drizzle-orm": "^0.30.10",
+		"pg": "^8.11.5"
+	}
+}
