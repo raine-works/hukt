@@ -11,4 +11,6 @@ const pool = new Pool({
 });
 
 await pool.connect();
-export const db = drizzle(pool);
+const db = drizzle(pool);
+
+export { pool, db };
