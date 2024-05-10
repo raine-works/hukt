@@ -8,7 +8,7 @@
 		}
 	},
 	"runArgs": ["--network=host"],
-	"forwardPorts": [3000, 5656],
+	"forwardPorts": [8080, 5432],
 	"mounts": [
 		"source=${env:HOME}${env:USERPROFILE}/.ssh,target=/home/${localEnv:USER}/.ssh,type=bind",
 		"source=${env:HOME}${env:USERPROFILE}/.gitconfig,target=/home/${localEnv:USER}/.gitconfig,type=bind",

@@ -1,21 +1,24 @@
 {
-  "name": "@hukt/gateway",
-  "version": "0.0.0",
-  "private": true,
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:raine-works/hukt.git",
-    "directory": "apps/gateway"
-  },
-  "dependencies": {
-    "@hukt/drizzle": "workspace:*",
-    "hono": "^4.3.4"
-  },
-  "devDependencies": {
-    "bun-types": "^1.1.3",
-    "@hukt/tsconfig": "workspace:*"
-  },
-  "peerDependencies": {
-    "typescript": "^5.4.4"
-  }
+	"name": "@hukt/gateway",
+	"version": "0.0.0",
+	"private": true,
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:raine-works/hukt.git",
+		"directory": "apps/gateway"
+	},
+	"scripts": {
+		"dev": "bun run --hot ./src/index.ts"
+	},
+	"dependencies": {
+		"@hukt/drizzle": "workspace:*",
+		"hono": "^4.3.4"
+	},
+	"devDependencies": {
+		"bun-types": "^1.1.3",
+		"@hukt/tsconfig": "workspace:*"
+	},
+	"peerDependencies": {
+		"typescript": "^5.4.4"
+	}
 }

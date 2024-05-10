@@ -4,7 +4,9 @@
 		"baseUrl": "./src",
 		"paths": {
 			"@src/*": ["./*"],
-			"@utils/*": ["./utils/*"]
+			"@utils/*": ["./utils/*"],
+			"@middleware/*": ["./middleware/*"]
 		}
-	}
+	},
+	"exclude": ["node_modules"]
 }
