@@ -1,0 +1,15 @@
+# dependencies
+node_modules/
+
+# Turbo
+.turbo/
+
+# Outputs
+.types/
+.build/
+
+# env files
+.env*
+
+# typescript
+*.tsbuildinfo

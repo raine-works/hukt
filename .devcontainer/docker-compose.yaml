@@ -1,0 +1,16 @@
+services:
+
+  workspace:
+    container_name: hukt_workspace
+    image: mcr.microsoft.com/devcontainers/base:ubuntu
+    command: sleep infinity
+    volumes: 
+      - ../..:/workspaces:cached
+    networks: 
+      - hukt_dev_network
+
+networks:
+  hukt_dev_network: 
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.host_binding_ipv4: 127.0.0.1

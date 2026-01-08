@@ -1,0 +1,20 @@
+{
+	"name": "@hukt/server",
+	"private": true,
+	"version": "1.0.0",
+	"scripts": {
+		"build:docker": "bash scripts/build.sh",
+		"dev": "bun run --watch ./src/index.ts"
+	},
+	"dependencies": {
+		"ssh2": "catalog:"
+	},
+	"devDependencies": {
+		"@hukt/tsconfig": "workspace:*",
+		"@types/ssh2": "catalog:"
+	},
+	"peerDependencies": {
+		"bun-types": "catalog:",
+		"typescript": "catalog:"
+	}
+}

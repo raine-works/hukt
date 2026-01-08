@@ -1,0 +1,12 @@
+{
+	"extends": "@hukt/tsconfig/base.json",
+	"compilerOptions": {
+		"rootDir": "../../",
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["../../*"],
+			"@client/*": ["./src/*"]
+		}
+	},
+	"include": ["src/**/*"]
+}

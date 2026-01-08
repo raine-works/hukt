@@ -1,0 +1,33 @@
+{
+	"name": "Hukt Workspace",
+	"dockerComposeFile": "docker-compose.yaml",
+	"service": "workspace",
+	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+	"features": {
+		"ghcr.io/devcontainers-extra/features/turborepo-npm:1": {
+			"version": "2.7.3"
+		},
+		"ghcr.io/raine-works/devcontainer-features/bun:1": { "version": "1.3.5" },
+		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+		"ghcr.io/devcontainers/features/github-cli:1": {},
+		"ghcr.io/mrsimonemms/devcontainers/buf:1": {}
+	},
+	"mounts": [
+		"source=${localEnv:HOME}/.config/gh,target=/home/vscode/.config/gh,type=bind"
+	],
+	"containerEnv": {
+		"NODE_ENV": "development",
+		"TZ": "UTC"
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"yoavbls.pretty-ts-errors",
+				"mhutchie.git-graph",
+				"waderyan.gitblame",
+				"oven.bun-vscode",
+				"biomejs.biome"
+			]
+		}
+	}
+}
