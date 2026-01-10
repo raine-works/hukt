@@ -8,7 +8,7 @@
 		"directory": "packages/server"
 	},
 	"scripts": {
-		"build": "bun build ./src/index.ts --compile --external=cpu-features --outfile=./.build/server && cp -r ./.keys/ ./.build/",
+		"build": "bun build ./src/index.ts --compile --external=cpu-features --outfile=./.build/server",
 		"build:docker": "bash scripts/build.sh",
 		"dev": "bun run --watch ./src/index.ts"
 	},

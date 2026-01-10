@@ -8,7 +8,7 @@
 		"directory": "packages/client"
 	},
 	"scripts": {
-		"build": "bun build ./src/index.ts --compile --outfile=./.build/client",
+		"build": "bun build ./src/index.ts --compile --external=cpu-features --outfile=./.build/client",
 		"dev": "bun run --watch ./src/index.ts"
 	},
 	"dependencies": {
