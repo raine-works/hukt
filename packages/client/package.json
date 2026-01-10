@@ -12,7 +12,8 @@
 		"dev": "bun run --watch ./src/index.ts"
 	},
 	"dependencies": {
-		"ssh2": "catalog:"
+		"ssh2": "catalog:",
+		"zod": "catalog:"
 	},
 	"devDependencies": {
 		"@hukt/tsconfig": "workspace:*",

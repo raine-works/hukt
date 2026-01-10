@@ -1,5 +1,4 @@
 services:
-
   workspace:
     container_name: hukt_workspace
     image: mcr.microsoft.com/devcontainers/base:ubuntu
@@ -9,8 +8,20 @@ services:
     networks: 
       - hukt_dev_network
 
+  nginx:
+    image: nginx:latest
+    container_name: hukt_nginx
+    ports:
+      - "127.0.0.1:80:80"
+      - "127.0.0.1:443:443"
+    networks:
+      - hukt_dev_network 
+    depends_on:
+      - workspace
+
 networks:
   hukt_dev_network: 
     driver: bridge
     driver_opts:
       com.docker.network.bridge.host_binding_ipv4: 127.0.0.1
+      com.docker.network.bridge.name: "hukt_bridge"

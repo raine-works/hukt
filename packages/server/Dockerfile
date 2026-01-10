@@ -22,4 +22,4 @@ LABEL org.opencontainers.image.source="https://github.com/raine-works/hukt"
 WORKDIR /app
 COPY --from=builder /workspace/packages/server/.build/server ./
 EXPOSE $PORT
-ENTRYPOINT ["server"]
+ENTRYPOINT ["./server"]

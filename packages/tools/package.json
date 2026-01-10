@@ -1,0 +1,21 @@
+{
+	"name": "@hukt/tools",
+	"private": true,
+	"version": "1.0.0",
+	"types": "./.types/index.d.ts",
+	"exports": {
+		"./*": "./src/*.ts"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/raine-works/hukt",
+		"directory": "packages/tools"
+	},
+	"devDependencies": {
+		"@hukt/tsconfig": "workspace:*"
+	},
+	"peerDependencies": {
+		"bun-types": "catalog:",
+		"typescript": "catalog:"
+	}
+}

@@ -1,29 +1,43 @@
-const { SLUG, LOCAL_TARGET, REMOTE_SERVER } = Bun.env;
+import { connect } from 'node:net';
+import { env } from '@client/lib/env';
+import { Client } from 'ssh2';
 
-const resolveTarget = (target?: string) => {
-	if (!target) return 'host.docker.internal:3000'; // Default
-	if (target.includes(':') && !target.startsWith('localhost')) return target;
-	if (!target.includes(':')) return `host.docker.internal:${target}`;
-	return target.replace('localhost', 'host.docker.internal');
-};
+await Bun.sleep(1000); // Wait for the server to be ready
 
-const finalTarget = resolveTarget(LOCAL_TARGET);
-const remoteSocket = `/tmp/tunnels/${SLUG}.sock`;
+const client = new Client();
 
-console.log(`🔗 Tunnel active: hukt.dev/tunnel/${SLUG} -> ${finalTarget}`);
+client.on('ready', () => {
+	console.log('Client Ready');
+	const remoteSocket = `/tmp/tunnels/${env.SSH_USERNAME}.sock`;
 
-const ssh = Bun.spawn({
-	cmd: [
-		'ssh',
-		'-N',
-		'-o',
-		'ServerAliveInterval=30',
-		'-o',
-		'ExitOnForwardFailure=yes',
-		'-R',
-		`${remoteSocket}:${finalTarget}`,
-		`tunnel@${REMOTE_SERVER}`
-	],
-	stdout: 'inherit',
-	stderr: 'inherit'
+	client.openssh_forwardInStreamLocal(remoteSocket, (err) => {
+		if (err) {
+			console.error('Failed to setup StreamLocal forward:', err.message);
+			return;
+		}
+		console.log(`Remote tunnel established at ${remoteSocket}`);
+	});
+});
+
+client.on('tcp connection', (info, accept, reject) => {
+	const local = connect(info.destPort, info.destIP, () => {
+		const stream = accept();
+		stream.pipe(local).pipe(stream);
+	});
+
+	local.on('error', (err) => {
+		console.error('Local connection error:', err);
+		reject();
+	});
+});
+
+client.on('error', (err) => console.error('SSH Error:', err));
+client.on('close', () => console.log('Connection closed. Restart the script to reconnect.'));
+
+client.connect({
+	host: env.REMOTE_HOST,
+	port: env.REMOTE_PORT,
+	username: env.SSH_USERNAME,
+	password: env.SSH_PASSWORD,
+	keepaliveInterval: 10000
 });
