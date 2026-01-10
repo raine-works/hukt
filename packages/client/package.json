@@ -2,6 +2,11 @@
 	"name": "@hukt/client",
 	"private": true,
 	"version": "1.0.0",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/raine-works/hukt",
+		"directory": "packages/client"
+	},
 	"scripts": {
 		"build": "bun build ./src/index.ts --compile --outfile=./.build/client",
 		"dev": "bun run --watch ./src/index.ts"

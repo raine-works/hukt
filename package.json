@@ -1,6 +1,10 @@
 {
 	"name": "hukt",
 	"private": true,
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/raine-works/hukt"
+	},
 	"scripts": {
 		"auth:docker": "rm -rf ~/.docker && echo $(gh auth token) | docker login ghcr.io -u $(gh api user | jq -r '.login') --password-stdin",
 		"build": "turbo run build",

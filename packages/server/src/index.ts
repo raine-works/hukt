@@ -1,8 +1,8 @@
 import { Server } from 'ssh2';
+import hostKeyFile from '../.keys/host-key' with { type: 'file' };
 
 const main = async () => {
-	const file = Bun.file(Bun.resolveSync('../ssh_keys/host-key', import.meta.dir));
-	const hostKey = await file.text();
+	const hostKey = await Bun.file(hostKeyFile).text();
 	const hostKeys = [hostKey];
 
 	const PORT = 22;

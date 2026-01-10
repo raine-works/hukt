@@ -2,7 +2,13 @@
 	"name": "@hukt/server",
 	"private": true,
 	"version": "1.0.0",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/raine-works/hukt",
+		"directory": "packages/server"
+	},
 	"scripts": {
+		"build": "bun build ./src/index.ts --compile --external=cpu-features --outfile=./.build/server && cp -r ./.keys/ ./.build/",
 		"build:docker": "bash scripts/build.sh",
 		"dev": "bun run --watch ./src/index.ts"
 	},

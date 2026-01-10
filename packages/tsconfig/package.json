@@ -1,5 +1,12 @@
 {
 	"name": "@hukt/tsconfig",
 	"private": true,
-	"files": ["base.json"]
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/raine-works/hukt",
+		"directory": "packages/tsconfig"
+	},
+	"files": [
+		"base.json"
+	]
 }
