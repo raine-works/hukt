@@ -1,10 +1,10 @@
-import { connect } from 'node:net';
 import { env } from '@client/lib/env';
+import { tryCatch } from '@hukt/tools/tryCatch';
 import { asyncRetry } from '@tanstack/pacer';
 import { Client } from 'ssh2';
 
 const openTunnel = () => {
-	return new Promise((_resolve, reject) => {
+	return new Promise<void>((_r, reject) => {
 		const client = new Client();
 
 		client.on('ready', () => {
@@ -21,20 +21,8 @@ const openTunnel = () => {
 			});
 		});
 
-		client.on('tcp connection', (info, accept, reject) => {
-			const local = connect(info.destPort, info.destIP, () => {
-				const stream = accept();
-				stream.pipe(local).pipe(stream);
-			});
-
-			local.on('error', (err) => {
-				console.error('Local connection error:', err);
-				reject();
-			});
-		});
-
 		client.on('error', (err) => {
-			console.error('SSH Error:', err);
+			console.error('SSH Error:', err.message);
 			reject();
 		});
 
@@ -43,9 +31,13 @@ const openTunnel = () => {
 			reject();
 		});
 
+		const remoteUrl = new URL(env.REMOTE_URL);
+		const host = remoteUrl.hostname;
+		const port = Number(remoteUrl.port || '80');
+
 		client.connect({
-			host: env.REMOTE_HOST,
-			port: env.REMOTE_PORT,
+			host,
+			port,
 			username: env.SSH_USERNAME,
 			password: env.SSH_PASSWORD,
 			keepaliveInterval: 10000
@@ -54,9 +46,19 @@ const openTunnel = () => {
 };
 
 const main = asyncRetry(openTunnel, {
-	backoff: 'fixed',
-	baseWait: 3000,
-	maxAttempts: Infinity
+	maxAttempts: 10,
+	backoff: 'exponential',
+	baseWait: 1000
 });
 
-await main();
+const { error } = await tryCatch(main());
+
+if (error) {
+	console.log('Cannot connect to host. Giving up...');
+	process.exit(0);
+}
+
+process.on('SIGTERM', async () => {
+	console.log('Shutting down...');
+	process.exit(0);
+});

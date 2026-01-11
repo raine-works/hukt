@@ -9,9 +9,11 @@
 	},
 	"scripts": {
 		"build": "bun build ./src/index.ts --compile --external=cpu-features --outfile=./.build/client",
+		"build:docker": "bash scripts/build.sh",
 		"dev": "bun run --watch ./src/index.ts"
 	},
 	"dependencies": {
+		"@hukt/tools": "workspace:*",
 		"@tanstack/pacer": "catalog:",
 		"ssh2": "catalog:",
 		"zod": "catalog:"

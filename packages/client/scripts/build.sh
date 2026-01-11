@@ -3,7 +3,7 @@
 VERSION=$(jq -r .version package.json)
 GITHUB_USERNAME="raine-works"
 PROJECT_NAME="hukt"
-PACKAGE_NAME="server"
+PACKAGE_NAME="client"
 
 cd ../../
 
@@ -21,9 +21,6 @@ docker buildx build \
     --build-arg=NODE_ENV=production \
     --build-arg=VERSION=${VERSION} \
     --build-arg=LOG_LEVEL=info \
-    --build-arg=HTTP_PORT=3000 \
-    --build-arg=SSH_PORT=2222 \
-    --build-arg=SOCKET_DIR=/tmp/tunnels \
     --builder=container \
     --push \
     .

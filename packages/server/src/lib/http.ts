@@ -1,4 +1,3 @@
-import { tryCatch } from '@hukt/tools/tryCatch';
 import { OpenAPIHandler } from '@orpc/openapi/fetch';
 import { onError } from '@orpc/server';
 import { env } from '@server/lib/env.js';

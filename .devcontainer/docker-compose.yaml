@@ -8,20 +8,31 @@ services:
     networks: 
       - hukt_dev_network
 
-  nginx:
-    image: nginx:latest
-    container_name: hukt_nginx
+  nats:
+    container_name: hukt_nats
+    image: nats:latest
+    command: [
+      "-js", 
+      "-sd", "/data", 
+      "-DV", 
+      "--user", "hukt_dev_user", 
+      "--pass", "hukt_dev_password"
+    ]
+    restart: always
     ports:
-      - "127.0.0.1:80:80"
-      - "127.0.0.1:443:443"
-    networks:
-      - hukt_dev_network 
-    depends_on:
-      - workspace
+      - 4222:4222
+      - 8222:8222 
+    volumes:
+      - nats_data:/data
+    networks: 
+      - hukt_dev_network
+
+volumes:
+  nats_data:
 
 networks:
   hukt_dev_network: 
     driver: bridge
     driver_opts:
       com.docker.network.bridge.host_binding_ipv4: 127.0.0.1
-      com.docker.network.bridge.name: "hukt_bridge"
+      com.docker.network.bridge.name: hukt_bridge

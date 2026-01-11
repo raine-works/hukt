@@ -2,10 +2,9 @@ import { existsSync, mkdirSync, readdirSync, unlinkSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { join } from 'node:path';
 import { tryCatch } from '@hukt/tools/tryCatch';
+import { nats } from '@server/index';
 import { env } from '@server/lib/env';
 import { Server } from 'ssh2';
-
-const activeTunnels = new Map<string, { targetHost: string; targetPort: number; socketPath: string }>();
 
 export const drainTunnels = async () => {
 	if (!existsSync(env.SOCKET_DIR)) {
@@ -49,7 +48,6 @@ export const startSSH = async () => {
 				}
 
 				const socketPath = join(env.SOCKET_DIR, `${username}.sock`);
-
 				const targetHost = 'google.com';
 				const targetPort = 80;
 
@@ -68,17 +66,17 @@ export const startSSH = async () => {
 					});
 				});
 
-				unixServer.listen(socketPath, () => {
+				unixServer.listen(socketPath, async () => {
 					console.log(`Bridge active: ${socketPath} -> ${targetHost}`);
-					activeTunnels.set(username, { targetHost, targetPort, socketPath });
+					await nats.activeTunnels.set(username, { targetHost, targetPort, socketPath });
 					if (accept) {
 						accept();
 					}
 				});
 
-				client.on('close', () => {
+				client.on('close', async () => {
 					unixServer.close();
-					activeTunnels.delete(username);
+					await nats.activeTunnels.delete(username);
 
 					if (existsSync(socketPath)) {
 						tryCatch(() => unlinkSync(socketPath));
@@ -90,6 +88,8 @@ export const startSSH = async () => {
 	});
 
 	sshServer.listen(env.SSH_PORT, '0.0.0.0', () => console.log(`SSH server listening on port ${env.SSH_PORT}.`));
+
+	return sshServer;
 };
 
 type ForwardTunnelResponse = { matched: true; response: Response } | { matched: false; response?: never };
@@ -108,7 +108,7 @@ export const forwardTunnelRequests = async (request: Request): Promise<ForwardTu
 		return { response: new Response('Missing username', { status: 400 }), matched: true };
 	}
 
-	const tunnel = activeTunnels.get(username);
+	const tunnel = await nats.activeTunnels.get(username);
 
 	if (!tunnel) {
 		return { response: new Response('Tunnel not active', { status: 404 }), matched: true };
