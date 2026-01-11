@@ -4,6 +4,8 @@ import { connect, JSONCodec, type KV, StringCodec } from 'nats';
 export const useNats = async () => {
 	const client = await connect({
 		servers: env.NATS_URL,
+		user: env.NATS_USER,
+		pass: env.NATS_PASS,
 		reconnect: true,
 		maxReconnectAttempts: 10
 	});

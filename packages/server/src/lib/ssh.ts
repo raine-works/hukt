@@ -48,8 +48,8 @@ export const startSSH = async () => {
 				}
 
 				const socketPath = join(env.SOCKET_DIR, `${username}.sock`);
-				const targetHost = 'google.com';
-				const targetPort = 80;
+				const targetHost = 'pve-1.lab.raineworks.com';
+				const targetPort = 8006;
 
 				if (existsSync(socketPath)) {
 					unlinkSync(socketPath);

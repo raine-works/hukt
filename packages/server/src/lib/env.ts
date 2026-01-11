@@ -6,7 +6,9 @@ const envSchema = z.object({
 	HTTP_PORT: z.coerce.number(),
 	SSH_PORT: z.coerce.number(),
 	SOCKET_DIR: z.string().regex(/^\/([a-zA-Z0-9._-]+\/?)+$/),
-	NATS_URL: z.url()
+	NATS_URL: z.string(),
+	NATS_USER: z.string(),
+	NATS_PASS: z.string()
 });
 
 export const env = envSchema.parse(Bun.env);

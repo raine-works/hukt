@@ -31,13 +31,9 @@ const openTunnel = () => {
 			reject();
 		});
 
-		const remoteUrl = new URL(env.REMOTE_URL);
-		const host = remoteUrl.hostname;
-		const port = Number(remoteUrl.port || '80');
-
 		client.connect({
-			host,
-			port,
+			host: env.SSH_HOST,
+			port: env.SSH_PORT,
 			username: env.SSH_USERNAME,
 			password: env.SSH_PASSWORD,
 			keepaliveInterval: 10000
