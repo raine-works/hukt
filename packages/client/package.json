@@ -12,6 +12,7 @@
 		"dev": "bun run --watch ./src/index.ts"
 	},
 	"dependencies": {
+		"@tanstack/pacer": "catalog:",
 		"ssh2": "catalog:",
 		"zod": "catalog:"
 	},

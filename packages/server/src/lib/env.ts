@@ -1,12 +1,11 @@
 import { z } from 'zod';
 
 const envSchema = z.object({
-	NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-	PORT: z.coerce.number().default(3000),
-	LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
-	TUNNEL_DIR: z.string(),
-	PROXY_TARGET_HOST: z.string().default('localhost'),
-	PROXY_TARGET_PORT: z.coerce.number().default(80)
+	NODE_ENV: z.enum(['development', 'production', 'test']),
+	LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']),
+	HTTP_PORT: z.coerce.number(),
+	SSH_PORT: z.coerce.number(),
+	SOCKET_DIR: z.string().regex(/^\/([a-zA-Z0-9._-]+\/?)+$/)
 });
 
 export const env = envSchema.parse(Bun.env);

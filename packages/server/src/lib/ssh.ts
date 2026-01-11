@@ -5,18 +5,18 @@ import { tryCatch } from '@hukt/tools/tryCatch';
 import { env } from '@server/lib/env';
 import { Server } from 'ssh2';
 
-export const activeTunnels = new Map<string, { targetHost: string; targetPort: number; socketPath: string }>();
+const activeTunnels = new Map<string, { targetHost: string; targetPort: number; socketPath: string }>();
 
-const drainTunnels = () => {
-	if (!existsSync(env.TUNNEL_DIR)) {
-		mkdirSync(env.TUNNEL_DIR, { recursive: true });
-		return;
+export const drainTunnels = async () => {
+	if (!existsSync(env.SOCKET_DIR)) {
+		return mkdirSync(env.SOCKET_DIR, { recursive: true });
 	}
 
-	const files = readdirSync(env.TUNNEL_DIR);
+	const files = readdirSync(env.SOCKET_DIR);
+
 	for (const file of files) {
 		if (file.endsWith('.sock')) {
-			const { error } = tryCatch(() => unlinkSync(join(env.TUNNEL_DIR, file)));
+			const { error } = tryCatch(() => unlinkSync(join(env.SOCKET_DIR, file)));
 
 			if (error) {
 				console.error(`Failed to drain ${file}:`, error);
@@ -27,79 +27,116 @@ const drainTunnels = () => {
 	}
 };
 
-export const startSSHServer = async (port: number) => {
-	drainTunnels();
-
+export const startSSH = async () => {
 	const hostKeyPath = `${Bun.env.HOME}/.ssh/host_key`;
 	const hostKey = await Bun.file(hostKeyPath).text();
 
 	const sshServer = new Server({ hostKeys: [hostKey] }, (client) => {
-		let username: string | null = null;
+		let username: string;
 
 		client.on('authentication', (ctx) => {
 			if (ctx.method === 'password' && ctx.username === 'foo' && ctx.password === 'bar') {
 				username = ctx.username;
 				return ctx.accept();
 			}
-			return ctx.reject();
+			ctx.reject();
 		});
 
 		client.on('request', (accept, reject, name) => {
 			if ((name as string) === 'streamlocal-forward@openssh.com' || name === 'tcpip-forward') {
-				if (!username) return reject?.();
+				if (!username) {
+					return reject?.();
+				}
 
-				const targetHost = 'nginx';
-				const targetPort = 8000;
+				const socketPath = join(env.SOCKET_DIR, `${username}.sock`);
 
-				const socketPath = join(env.TUNNEL_DIR, `${username}.sock`);
+				const targetHost = 'google.com';
+				const targetPort = 80;
 
-				if (existsSync(socketPath)) unlinkSync(socketPath);
+				if (existsSync(socketPath)) {
+					unlinkSync(socketPath);
+				}
 
 				const unixServer = createServer((browserSocket) => {
-					console.log('🔌 Bun Gateway connected to Unix Socket');
-
-					client.forwardOut('localhost', 0, targetHost, targetPort, (err, sshStream) => {
+					client.forwardOut('0.0.0.0', 0, targetHost, targetPort, (err, sshStream) => {
 						if (err) {
 							console.error('SSH Forwarding Error:', err);
 							return browserSocket.end();
 						}
-
-						console.log('SSH Tunnel Stream opened to Client');
-
-						browserSocket.on('data', (chunk) => {
-							console.log(`Sending ${chunk.length} bytes to SSH Stream`);
-							if (!sshStream.write(chunk)) {
-								console.log('SSH Stream buffer full, waiting for drain...');
-							}
-						});
+						console.log('SSH Tunnel Stream opened');
+						browserSocket.pipe(sshStream).pipe(browserSocket);
 					});
 				});
 
 				unixServer.listen(socketPath, () => {
-					console.log(`Bridge active`);
-					activeTunnels.set(username!, {
-						targetHost,
-						targetPort,
-						socketPath
-					});
-					if (typeof accept === 'function') accept();
+					console.log(`Bridge active: ${socketPath} -> ${targetHost}`);
+					activeTunnels.set(username, { targetHost, targetPort, socketPath });
+					if (accept) {
+						accept();
+					}
 				});
 
 				client.on('close', () => {
 					unixServer.close();
-					activeTunnels.delete(username!);
-					if (existsSync(socketPath)) {
-						const { error } = tryCatch(() => unlinkSync(socketPath));
+					activeTunnels.delete(username);
 
-						if (error) {
-							console.error(`Failed to remove socket ${socketPath}:`, error);
-						}
+					if (existsSync(socketPath)) {
+						tryCatch(() => unlinkSync(socketPath));
+						console.log(`Tunnel ${username} cleaned up.`);
 					}
-					console.log(`🗑️ Tunnel ${username} cleaned up.`);
 				});
 			}
 		});
 	});
 
-	sshServer.listen(port, () => console.log(`🚀 SSH Server listening on port ${port}`));
+	sshServer.listen(env.SSH_PORT, '0.0.0.0', () => console.log(`SSH server listening on port ${env.SSH_PORT}.`));
+};
+
+type ForwardTunnelResponse = { matched: true; response: Response } | { matched: false; response?: never };
+
+export const forwardTunnelRequests = async (request: Request): Promise<ForwardTunnelResponse> => {
+	const url = new URL(request.url);
+	const parts = url.pathname.split('/').filter(Boolean);
+	const route = parts[0];
+	const username = parts[1];
+
+	if (route !== 'tunnel') {
+		return { matched: false };
+	}
+
+	if (!username) {
+		return { response: new Response('Missing username', { status: 400 }), matched: true };
+	}
+
+	const tunnel = activeTunnels.get(username);
+
+	if (!tunnel) {
+		return { response: new Response('Tunnel not active', { status: 404 }), matched: true };
+	}
+
+	const forwardPath = url.pathname.split(username)[1] || '/';
+	const targetUrl = `http://${tunnel.targetHost}:${tunnel.targetPort}${forwardPath}${url.search}`;
+
+	console.log(`[${username}] Proxying to: ${targetUrl}`);
+
+	const headers = new Headers(request.headers);
+	// headers.set('host', tunnel.targetHost);
+
+	const { error, data } = await tryCatch(
+		fetch(targetUrl, {
+			method: request.method,
+			headers: headers,
+			redirect: 'manual',
+			tls: {
+				rejectUnauthorized: false
+			}
+		})
+	);
+
+	if (error) {
+		console.error('Fetch Error:', error);
+		return { response: new Response(`Proxy Error: ${error.message}`, { status: 502 }), matched: true };
+	}
+
+	return { response: data, matched: true };
 };
