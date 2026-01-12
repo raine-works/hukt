@@ -16,7 +16,12 @@ export const useNats = async () => {
 	const stringCodec = StringCodec();
 	const jsonCodec = JSONCodec();
 	const kvBucket = await jetstream.views.kv('active_tunnels');
-	const activeTunnels = new TypedKV<{ targetHost: string; targetPort: number; socketPath: string }>(kvBucket);
+	const activeTunnels = new TypedKV<{
+		targetProtocol: string;
+		targetHost: string;
+		targetPort: number;
+		socketPath: string;
+	}>(kvBucket);
 
 	const $disconnect = async () => {
 		await Bun.sleep(1000);

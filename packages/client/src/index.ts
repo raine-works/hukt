@@ -36,7 +36,8 @@ const openTunnel = () => {
 			port: env.SSH_PORT,
 			username: env.SSH_USERNAME,
 			password: env.SSH_PASSWORD,
-			keepaliveInterval: 10000
+			keepaliveInterval: 10000,
+			strictVendor: true
 		});
 	});
 };

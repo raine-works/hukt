@@ -6,9 +6,9 @@ import { nats } from '@server/index';
 import { env } from '@server/lib/env';
 import { Server } from 'ssh2';
 
-export const drainTunnels = async () => {
+export const drainTunnels = async (): Promise<void> => {
 	if (!existsSync(env.SOCKET_DIR)) {
-		return mkdirSync(env.SOCKET_DIR, { recursive: true });
+		mkdirSync(env.SOCKET_DIR, { recursive: true });
 	}
 
 	const files = readdirSync(env.SOCKET_DIR);
@@ -48,8 +48,11 @@ export const startSSH = async () => {
 				}
 
 				const socketPath = join(env.SOCKET_DIR, `${username}.sock`);
-				const targetHost = 'pve-1.lab.raineworks.com';
-				const targetPort = 8006;
+
+				const targetUrl = new URL('http://gemeni.lab.raineworks.com:3000');
+				const targetProtocol = targetUrl.protocol ? targetUrl.protocol : 'http:';
+				const targetHost = targetUrl.hostname;
+				const targetPort = targetUrl.port ? Number(targetUrl.port) : targetUrl.protocol === 'https:' ? 443 : 80;
 
 				if (existsSync(socketPath)) {
 					unlinkSync(socketPath);
@@ -68,7 +71,7 @@ export const startSSH = async () => {
 
 				unixServer.listen(socketPath, async () => {
 					console.log(`Bridge active: ${socketPath} -> ${targetHost}`);
-					await nats.activeTunnels.set(username, { targetHost, targetPort, socketPath });
+					await nats.activeTunnels.set(username, { targetProtocol, targetHost, targetPort, socketPath });
 					if (accept) {
 						accept();
 					}
@@ -87,7 +90,8 @@ export const startSSH = async () => {
 		});
 	});
 
-	sshServer.listen(env.SSH_PORT, '0.0.0.0', () => console.log(`SSH server listening on port ${env.SSH_PORT}.`));
+	sshServer.listen(env.SSH_PORT, '0.0.0.0');
+	console.log(`SSH server listening on port ${env.SSH_PORT}.`);
 
 	return sshServer;
 };
@@ -115,12 +119,14 @@ export const forwardTunnelRequests = async (request: Request): Promise<ForwardTu
 	}
 
 	const forwardPath = url.pathname.split(username)[1] || '/';
-	const targetUrl = `http://${tunnel.targetHost}:${tunnel.targetPort}${forwardPath}${url.search}`;
+	const targetUrl = `${tunnel.targetProtocol}//${tunnel.targetHost}:${tunnel.targetPort}${forwardPath}${url.search}`;
 
 	console.log(`[${username}] Proxying to: ${targetUrl}`);
 
 	const headers = new Headers(request.headers);
-	// headers.set('host', tunnel.targetHost);
+
+	headers.set('host', tunnel.targetHost);
+	headers.set('origin', `${tunnel.targetProtocol}//${tunnel.targetHost}:${tunnel.targetPort}`);
 
 	const { error, data } = await tryCatch(
 		fetch(targetUrl, {
